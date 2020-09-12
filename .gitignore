@@ -15,10 +15,10 @@ Created 2 years ago • Report abuse
  Forks 9
 <script src="https://gist.github.com/GhostofGoes/94580e76cd251972b15b4821c8a06f59.js"></script>
 Basic .gitignore template for Python projects
-.gitignore
 # Editors
 .vscode/
 .idea/
+.venv
 
 # Vagrant
 .vagrant/
@@ -56,6 +56,8 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+venv/
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

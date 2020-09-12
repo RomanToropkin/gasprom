@@ -5,10 +5,10 @@ from geopy.distance import geodesic
 from kafka import KafkaConsumer
 from kafka import TopicPartition
 
-LAST_DATA = 200
+LAST_DATA = 150
 
 consumer = KafkaConsumer(auto_offset_reset='latest', enable_auto_commit=False,
-                         bootstrap_servers=['gpbtask.fun:9092'], consumer_timeout_ms=1000, api_version=(0, 10, 1),
+                         bootstrap_servers=['gpbtask.fun:9092'], consumer_timeout_ms=2000, api_version=(0, 10, 1),
                          value_deserializer=lambda m: json.loads(m.decode('ascii')))
 partition = TopicPartition('input1', 0)
 consumer.assign([partition])
@@ -34,39 +34,50 @@ def mean(arr):
 
 for val in consumer:
     val = val.value
-    client_id = val['client_id']
-    if client_id in clients:
-        clients[client_id].append(list(val.values()))
-    else:
-        clients[client_id] = [list(val.values())]
-    if len(clients[client_id]) == LAST_DATA:
-        print(clients)
-        lat1 = clients[client_id][0][2]
-        lon1 = clients[client_id][0][3]
-        lat2 = clients[client_id][-1][2]
-        lon2 = clients[client_id][-1][3]
-        print(f'первоначальная точка: {lat1, lon1}')
-        print(f'конечная точка: {lat2, lon2}')
-        print(
-            f'пройденное расстрояние: {geodesic((lat1, lon1),(lat2, lon2)).meters} метров ')
-        print(f'средняя скорость: {mean(clients[client_id])}')
-        i = 1
-        for pat in patrols:
-            print(f'Расстояние до колонки {i} - {geodesic((lat2, lon2),(pat)).meters} метров')
-            i+=1
-        print()
-        i = 1
-        for pat in offices:
-            print(f'Расстояние до офиса {i} - {geodesic((lat2, lon2),(pat)).meters} метров')
-            i+=1
-        print()
-        i = 1
-        for pat in banks:
-            print(f'Расстояние до банка {i} - {geodesic((lat2, lon2),(pat)).meters} метров')
-            i+=1
-        print('---------------------------------///////////////////////---------------------------------')
-        del clients[client_id]
-
-print(clients)
+    lat = val['latitude']
+    lon = val['longitude']
+    for pat in patrols:
+        dist = geodesic((lat,lon),pat).meters
+        if dist <= 2000:
+            print(f'Отработало событие! {val}, координаты заправки: {pat}, расстрояние: {dist}')
+    for pat in offices:
+        dist = geodesic((lat,lon),pat).meters
+        if dist <= 2000:
+            print(f'Отработало событие! {val}, координаты офиса: {pat}, расстрояние: {dist}')
+    for pat in banks:
+        dist = geodesic((lat,lon),pat).meters
+        if dist <= 2000:
+            print(f'Отработало событие! {val}, координаты банка: {pat}, расстрояние: {dist}')
+    # if client_id in clients:
+    #     clients[client_id].append(list(val.values()))
+    # else:
+    #     clients[client_id] = [list(val.values())]
+    # if len(clients[client_id]) == LAST_DATA:
+    #     print(clients)
+    #     lat1 = clients[client_id][0][2]
+    #     lon1 = clients[client_id][0][3]
+    #     lat2 = clients[client_id][-1][2]
+    #     lon2 = clients[client_id][-1][3]
+    #     print(f'первоначальная точка: {lat1, lon1}')
+    #     print(f'конечная точка: {lat2, lon2}')
+    #     print(
+    #         f'пройденное расстрояние: {geodesic((lat1, lon1),(lat2, lon2)).meters} метров ')
+    #     print(f'средняя скорость: {mean(clients[client_id])}')
+    #     i = 1
+    #     for pat in patrols:
+    #         print(f'Расстояние до колонки {i} - {geodesic((lat2, lon2),(pat)).meters} метров')
+    #         i+=1
+    #     print()
+    #     i = 1
+    #     for pat in offices:
+    #         print(f'Расстояние до офиса {i} - {geodesic((lat2, lon2),(pat)).meters} метров')
+    #         i+=1
+    #     print()
+    #     i = 1
+    #     for pat in banks:
+    #         print(f'Расстояние до банка {i} - {geodesic((lat2, lon2),(pat)).meters} метров')
+    #         i+=1
+    #     print('---------------------------------///////////////////////---------------------------------')
+    #     del clients[client_id]
 
 consumer.close()
