@@ -23,7 +23,7 @@ offices = [(55.558834, 37.815781),(55.900693, 37.478917),(56.359825, 37.542558),
 banks = [(55.728849, 37.620321),(56.342179, 37.523720),(56.007639, 37.484526),(55.782977, 37.640659),
          (53.019530, 158.647842),(55.630446, 37.658377),(55.633323, 37.650055),(55.909247, 37.590461)]
 
-events = []
+events = {}
 
 first_time = datetime.datetime.now().timestamp()
 
@@ -70,28 +70,60 @@ for val in consumer:
             print(f'средняя скорость: {mean(clients[client_id])}')
             i = 1
             if (int(text_time) >= 8 and int(text_time) <= 20):
+                if speed >= 20 and speed <= 110:
+                    needed_dist = 1500
+                else:
+                    needed_dist = 500
                 for pat in patrols:
                     dist = geodesic((lat2, lon2), (pat)).meters
-                    if dist <= 2000:
+                    if dist <= needed_dist:
                         print(f'Отработало событие! {val}, координаты колонки: {pat}, расстрояние: {dist}')
+                        if client_id in events:
+                            for client in events:
+                                for event in events[client]:
+                                    if 1 == event['id_station'] and time1 - event['time'] >= 86400:
+                                        events[client_id].append({'time':time1,'id_station':1})
+                                    elif 1 != event['id_station']:
+                                        events[client_id].append({'time': time1, 'id_station': 1})
+                        else:
+                            events[client_id] = [{'time':time1,'id_station':1}]
                     print(f'Расстояние до колонки {i} - {dist} метров')
                     i += 1
                 print()
                 for pat in offices:
                     dist = geodesic((lat2, lon2), (pat)).meters
-                    if dist <= 2000:
+                    if dist <= needed_dist:
                         print(f'Отработало событие! {val}, координаты офиса: {pat}, расстрояние: {dist}')
+                        if client_id in events:
+                            for client in events:
+                                for event in events[client]:
+                                    if 2 == event['id_station'] and time1 - event['time'] >= 86400:
+                                        events[client_id].append({'time': time1, 'id_station': 2})
+                                    elif 2 != event['id_station']:
+                                        events[client_id].append({'time': time1, 'id_station': 2})
+                        else:
+                            events[client_id] = [{'time': time1, 'id_station': 2}]
                     print(f'Расстояние до офиса {i} - {dist} метров')
                     i += 1
                 print()
                 for pat in banks:
                     dist = geodesic((lat2, lon2), (pat)).meters
-                    if dist <= 2000:
+                    if dist <= needed_dist:
                         print(f'Отработало событие! {val}, координаты банка: {pat}, расстрояние: {dist}')
+                        if client_id in events:
+                            for client in events:
+                                for event in events[client]:
+                                    if 3 == event['id_station'] and time1 - event['time'] >= 86400:
+                                        events[client_id].append({'time': time1, 'id_station': 3})
+                                    elif 3 != event['id_station']:
+                                        events[client_id].append({'time': time1, 'id_station': 3})
+                        else:
+                            events[client_id] = [{'time': time1, 'id_station': 3}]
                     print(f'Расстояние до банка {i} - {dist} метров')
                     i += 1
             print('---------------------------------///////////////////////---------------------------------')
+        print(events)
         first_time = time1
-        clients.clear()
+        clients = {}
 
 consumer.close()
