@@ -18,7 +18,6 @@ class DB:
             return cursor.fetchall()
 
     def create_event(self, id_client, id_station_type, date, lat, lon,dist,speed):
-        print(type(lat), type(lon), type(dist), type(speed))
         with self._connection.cursor() as cursor:
             sql = "INSERT INTO events (id_client, id_station_type, date, lat, lon,dist,speed) VALUE (%s,%s,%s,%s,%s,%s,%s);"
             cursor.execute(sql, (id_client, id_station_type, date, lat, lon,dist,speed))

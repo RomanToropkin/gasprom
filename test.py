@@ -14,7 +14,7 @@ DAY_END = 20
 MIN_SPEED = 30
 MAX_SPEED = 90
 NULL_TIME_SIZE = 10000000000
-TIME_DIF = 43200
+TIME_DIF = 86400
 WALKER_DISTANCE = 1300
 WINDOW_SIZE = 300
 
@@ -78,7 +78,6 @@ for val in consumer:
             speed = geodesic((lat1, lon1), (lat2, lon2)).meters
             speed /= (time1 - first_time)
             speed *= 3.6
-            print(f'средняя скорость при неадекватных значениях: {speed}')
             print(f'средняя скорость: {mean(clients[client_id])}')
             if MIN_SPEED <= speed <= MAX_SPEED:
                 needed_dist = CAR_DISTANCE
@@ -87,7 +86,7 @@ for val in consumer:
             for pat in patrols:
                 dist = geodesic((lat2, lon2), pat).meters
                 if dist <= needed_dist and MIN_SPEED <= speed <= MAX_SPEED:
-                    print(f'Отработало событие! {val}, координаты колонки: {pat}, расстрояние: {dist}')
+                    print(f'Сработал тригер. {val}, координаты колонки: {pat}, расстрояние: {dist}')
                     note = db.get_last_event_by_client(client_id, 1)
                     if note:
                         last_client_note = note['date']
@@ -111,7 +110,7 @@ for val in consumer:
                 for pat in offices:
                     dist = geodesic((lat2, lon2), pat).meters
                     if dist <= needed_dist:
-                        print(f'Отработало событие! {val}, координаты офиса: {pat}, расстрояние: {dist}')
+                        print(f'Сработал тригер. {val}, координаты офиса: {pat}, расстрояние: {dist}')
                         note = db.get_last_event_by_client(client_id, 2)
                         if note:
                             last_client_note = note['date']
@@ -134,7 +133,7 @@ for val in consumer:
                 for pat in banks:
                     dist = geodesic((lat2, lon2), pat).meters
                     if dist <= needed_dist:
-                        print(f'Отработало событие! {val}, координаты банка: {pat}, расстрояние: {dist}')
+                        print(f'Сработал тригер. {val}, координаты банка: {pat}, расстрояние: {dist}')
                         note = db.get_last_event_by_client(client_id, 3)
                         if note:
                             last_client_note = note['date']
