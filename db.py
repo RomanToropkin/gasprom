@@ -19,7 +19,7 @@ class DB:
 
     def create_event(self, id_client, id_station_type, date, lat, lon):
         with self._connection.cursor() as cursor:
-            sql = "INSERT INTO events (id_client, id_station_type, date, lat, lon) VALUE (%s,%s,%s,%d,%d);"
+            sql = "INSERT INTO events (id_client, id_station_type, date, lat, lon) VALUE (%s,%s,%s,%s,%s);"
             cursor.execute(sql, (id_client, id_station_type, date, lat, lon))
 
             self._connection.commit()

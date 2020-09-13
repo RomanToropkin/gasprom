@@ -72,25 +72,26 @@ for val in consumer:
             print(f'средняя скорость при неадекватных значениях: {speed}')
             print(f'средняя скорость: {mean(clients[client_id])}')
             i = 1
-            if (int(text_time) >= 8 and int(text_time) <= 20):
-                if speed >= 20 and speed <= 110:
-                    needed_dist = 1500
-                else:
-                    needed_dist = 500
-                for pat in patrols:
-                    dist = geodesic((lat2, lon2), (pat)).meters
-                    if dist <= needed_dist:
-                        print(f'Отработало событие! {val}, координаты колонки: {pat}, расстрояние: {dist}')
-                        last_client_note = db.get_last_event_by_client(client_id,1 )
-                        print(last_client_note)
-                        if last_client_note:
-                            if abs(time1 - last_client_note['date']) >= 86400:
-                                db.create_event(client_id, 1, time1, pat[0], pat[1])
-                        else:
+            if speed >= 20 and speed <= 110:
+                needed_dist = 1500
+            else:
+                needed_dist = 500
+            for pat in patrols:
+                dist = geodesic((lat2, lon2), (pat)).meters
+                if dist <= needed_dist:
+                    print(f'Отработало событие! {val}, координаты колонки: {pat}, расстрояние: {dist}')
+                    last_client_note = db.get_last_event_by_client(client_id, 1)
+                    print(last_client_note)
+                    if last_client_note:
+                        print(abs(time1 - last_client_note['date']))
+                        if abs(time1 - last_client_note['date']) >= 86400:
                             db.create_event(client_id, 1, time1, pat[0], pat[1])
-                    print(f'Расстояние до колонки {i} - {dist} метров')
-                    i += 1
-                print()
+                    else:
+                        db.create_event(client_id, 1, time1, pat[0], pat[1])
+                print(f'Расстояние до колонки {i} - {dist} метров')
+                i += 1
+            print()
+            if (int(text_time) >= 8 and int(text_time) <= 20):
                 for pat in offices:
                     dist = geodesic((lat2, lon2), (pat)).meters
                     if dist <= needed_dist:
@@ -98,6 +99,7 @@ for val in consumer:
                         last_client_note = db.get_last_event_by_client(client_id, 2)
                         print(last_client_note)
                         if last_client_note:
+                            print(abs(time1 - last_client_note['date']))
                             if abs(time1 - last_client_note['date']) >= 86400:
                                 db.create_event(client_id, 2, time1, pat[0], pat[1])
                         else:
@@ -112,6 +114,7 @@ for val in consumer:
                         last_client_note = db.get_last_event_by_client(client_id, 3)
                         print(last_client_note)
                         if last_client_note:
+                            print(abs(time1 - last_client_note['date']))
                             if abs(time1 - last_client_note['date']) >= 86400:
                                 db.create_event(client_id, 3, time1, pat[0], pat[1])
                         else:
