@@ -17,10 +17,10 @@ class DB:
             cursor.execute(sql)
             return cursor.fetchall()
 
-    def create_event(self, id_client, id_station_type, date, lat, lon):
+    def create_event(self, id_client, id_station_type, date, lat, lon,dist,speed):
         with self._connection.cursor() as cursor:
-            sql = "INSERT INTO events (id_client, id_station_type, date, lat, lon) VALUE (%s,%s,%s,%s,%s);"
-            cursor.execute(sql, (id_client, id_station_type, date, lat, lon))
+            sql = "INSERT INTO events (id_client, id_station_type, date, lat, lon,dist,speed) VALUE (%s,%s,%s,%s,%s,%s,%s);"
+            cursor.execute(sql, (id_client, id_station_type, date, lat, lon,dist,speed))
 
             self._connection.commit()
 

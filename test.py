@@ -85,9 +85,9 @@ for val in consumer:
                     if last_client_note:
                         print(abs(time1 - last_client_note['date']))
                         if abs(time1 - last_client_note['date']) >= 86400:
-                            db.create_event(client_id, 1, time1, pat[0], pat[1])
+                            db.create_event(client_id, 1, time1, pat[0], pat[1],dist, speed)
                     else:
-                        db.create_event(client_id, 1, time1, pat[0], pat[1])
+                        db.create_event(client_id, 1, time1, pat[0], pat[1],dist,speed)
                 print(f'Расстояние до колонки {i} - {dist} метров')
                 i += 1
             print()
@@ -101,9 +101,9 @@ for val in consumer:
                         if last_client_note:
                             print(abs(time1 - last_client_note['date']))
                             if abs(time1 - last_client_note['date']) >= 86400:
-                                db.create_event(client_id, 2, time1, pat[0], pat[1])
+                                db.create_event(client_id, 2, time1, pat[0], pat[1],dist,speed)
                         else:
-                            db.create_event(client_id, 2, time1, pat[0], pat[1])
+                            db.create_event(client_id, 2, time1, pat[0], pat[1],dist,speed)
                     print(f'Расстояние до офиса {i} - {dist} метров')
                     i += 1
                 print()
@@ -116,9 +116,9 @@ for val in consumer:
                         if last_client_note:
                             print(abs(time1 - last_client_note['date']))
                             if abs(time1 - last_client_note['date']) >= 86400:
-                                db.create_event(client_id, 3, time1, pat[0], pat[1])
+                                db.create_event(client_id, 3, time1, pat[0], pat[1],dist,speed)
                         else:
-                            db.create_event(client_id, 3, time1, pat[0], pat[1])
+                            db.create_event(client_id, 3, time1, pat[0], pat[1],dist,speed)
                     print(f'Расстояние до банка {i} - {dist} метров')
                     i += 1
             print('---------------------------------///////////////////////---------------------------------')
