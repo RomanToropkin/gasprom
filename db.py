@@ -18,6 +18,7 @@ class DB:
             return cursor.fetchall()
 
     def create_event(self, id_client, id_station_type, date, lat, lon,dist,speed):
+        print(type(lat), type(lon), type(dist), type(speed))
         with self._connection.cursor() as cursor:
             sql = "INSERT INTO events (id_client, id_station_type, date, lat, lon,dist,speed) VALUE (%s,%s,%s,%s,%s,%s,%s);"
             cursor.execute(sql, (id_client, id_station_type, date, lat, lon,dist,speed))
@@ -27,5 +28,11 @@ class DB:
     def get_last_event_by_client(self, id_client, id_station_type):
         with self._connection.cursor() as cursor:
             sql = "SELECT * FROM events WHERE id_client = %s AND id_station_type = %s ORDER BY date DESC limit 1;"
+            cursor.execute(sql, (id_client, id_station_type))
+            return cursor.fetchone()
+
+    def get_earliest_event_by_client(self, id_client, id_station_type):
+        with self._connection.cursor() as cursor:
+            sql = "SELECT * FROM events WHERE id_client = %s AND id_station_type = %s ORDER BY date ASC limit 1;"
             cursor.execute(sql, (id_client, id_station_type))
             return cursor.fetchone()
