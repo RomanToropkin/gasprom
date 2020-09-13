@@ -17,7 +17,7 @@ Created 2 years ago • Report abuse
 Basic .gitignore template for Python projects
 # Editors
 .vscode/
-.idea/
+../.idea/
 .venv
 
 # Vagrant

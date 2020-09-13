@@ -6,35 +6,32 @@ from geopy.distance import geodesic
 from kafka import KafkaConsumer
 from kafka import TopicPartition
 
-from db import DB
+from backend.db import DB
 
-CAR_DISTANCE = 3500
+BOOTSTRAP_SERVER = 'gpbtask.fun:9092'
+CAR_DISTANCE = 4000
 DAY_START = 8
 DAY_END = 20
 MIN_SPEED = 30
-MAX_SPEED = 90
+MAX_SPEED = 100
 NULL_TIME_SIZE = 10000000000
-TIME_DIF = 86400
-WALKER_DISTANCE = 1300
+TIME_DIF = 66400
+TOPIC = 'input10'
+WALKER_DISTANCE = 1600
 WINDOW_SIZE = 300
 
 consumer = KafkaConsumer(auto_offset_reset='latest', enable_auto_commit=False,
-                         bootstrap_servers=['gpbtask.fun:9092'], consumer_timeout_ms=2000, api_version=(0, 10, 1),
+                         bootstrap_servers=[BOOTSTRAP_SERVER], consumer_timeout_ms=2000, api_version=(0, 10, 1),
                          value_deserializer=lambda m: json.loads(m.decode('ascii')))
-partition = TopicPartition('input1', 0)
+partition = TopicPartition(TOPIC, 0)
 consumer.assign([partition])
 
 clients = {}
 db = DB()
 
-patrols = [(55.554771, 37.924931), (60.765833, 28.808552), (55.798510, 37.534730), (55.848817, 36.805567),
-           (53.041525, 158.637171)]
-
-offices = [(55.558834, 37.815781), (55.900693, 37.478917), (56.359825, 37.542558), (53.064992, 158.619518),
-           (55.847763, 37.636684)]
-
-banks = [(55.728849, 37.620321), (56.342179, 37.523720), (56.007639, 37.484526), (55.782977, 37.640659),
-         (53.019530, 158.647842), (55.630446, 37.658377), (55.633323, 37.650055), (55.909247, 37.590461)]
+patrols = db.get_station(1)
+offices = db.get_station(2)
+banks = db.get_station(3)
 
 first_time = datetime.datetime.now().timestamp()
 
@@ -84,7 +81,7 @@ for val in consumer:
             else:
                 needed_dist = WALKER_DISTANCE
             for pat in patrols:
-                dist = geodesic((lat2, lon2), pat).meters
+                dist = geodesic((lat2, lon2), (pat['latitude'], pat['longitude'])).meters
                 if dist <= needed_dist and MIN_SPEED <= speed <= MAX_SPEED:
                     print(f'Сработал тригер. {val}, координаты колонки: {pat}, расстрояние: {dist}')
                     note = db.get_last_event_by_client(client_id, 1)
@@ -103,12 +100,12 @@ for val in consumer:
                     if abs(time1 - last_client_note) >= TIME_DIF \
                             and abs(time1 - early_client_note) >= TIME_DIF:
                         print('Добавили в базу событие!')
-                        db.create_event(client_id, 1, time1, pat[0], pat[1], dist, speed)
+                        db.create_event(client_id, 1, time1, pat['latitude'], pat['longitude'], dist, speed)
                 # print(f'Расстояние до колонки {i} - {dist} метров')
             # print()
             if DAY_START <= int(text_time) <= DAY_END:
                 for pat in offices:
-                    dist = geodesic((lat2, lon2), pat).meters
+                    dist = geodesic((lat2, lon2), (pat['latitude'], pat['longitude'])).meters
                     if dist <= needed_dist:
                         print(f'Сработал тригер. {val}, координаты офиса: {pat}, расстрояние: {dist}')
                         note = db.get_last_event_by_client(client_id, 2)
@@ -127,11 +124,11 @@ for val in consumer:
                         if abs(time1 - last_client_note) >= TIME_DIF \
                                 and abs(time1 - early_client_note) >= TIME_DIF:
                             print('Добавили в базу событие!')
-                            db.create_event(client_id, 2, time1, pat[0], pat[1], dist, speed)
+                            db.create_event(client_id, 2, time1, pat['latitude'], pat['longitude'], dist, speed)
                     # print(f'Расстояние до офиса {i} - {dist} метров')
                 # print()
                 for pat in banks:
-                    dist = geodesic((lat2, lon2), pat).meters
+                    dist = geodesic((lat2, lon2), (pat['latitude'], pat['longitude'])).meters
                     if dist <= needed_dist:
                         print(f'Сработал тригер. {val}, координаты банка: {pat}, расстрояние: {dist}')
                         note = db.get_last_event_by_client(client_id, 3)
@@ -150,7 +147,7 @@ for val in consumer:
                         if abs(time1 - last_client_note) >= TIME_DIF \
                                 and abs(time1 - early_client_note) >= TIME_DIF:
                             print('Добавили в базу событие!')
-                            db.create_event(client_id, 3, time1, pat[0], pat[1], dist, speed)
+                            db.create_event(client_id, 3, time1, pat['latitude'], pat['longitude'], dist, speed)
                     # print(f'Расстояние до банка {i} - {dist} метров')
             print('---------------------------------///////////////////////---------------------------------')
         # print(events)

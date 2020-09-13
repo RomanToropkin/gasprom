@@ -1,4 +1,4 @@
-from db import DB
+from backend.db import DB
 
 db = DB()
 print(db.get_station_types())
