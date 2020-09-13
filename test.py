@@ -6,6 +6,8 @@ from geopy.distance import geodesic
 from kafka import KafkaConsumer
 from kafka import TopicPartition
 
+from db import DB
+
 consumer = KafkaConsumer(auto_offset_reset='latest', enable_auto_commit=False,
                          bootstrap_servers=['gpbtask.fun:9092'], consumer_timeout_ms=2000, api_version=(0, 10, 1),
                          value_deserializer=lambda m: json.loads(m.decode('ascii')))
@@ -13,6 +15,7 @@ partition = TopicPartition('input1', 0)
 consumer.assign([partition])
 
 clients = {}
+db = DB()
 
 patrols = [(55.554771, 37.924931), (60.765833, 28.808552), (55.798510, 37.534730),(55.848817, 36.805567),
            (53.041525, 158.637171)]
@@ -78,15 +81,13 @@ for val in consumer:
                     dist = geodesic((lat2, lon2), (pat)).meters
                     if dist <= needed_dist:
                         print(f'Отработало событие! {val}, координаты колонки: {pat}, расстрояние: {dist}')
-                        if client_id in events:
-                            for client in events:
-                                for event in events[client]:
-                                    if 1 == event['id_station'] and time1 - event['time'] >= 86400:
-                                        events[client_id].append({'time':time1,'id_station':1})
-                                    elif 1 != event['id_station']:
-                                        events[client_id].append({'time': time1, 'id_station': 1})
+                        last_client_note = db.get_last_event_by_client(client_id,1 )
+                        print(last_client_note)
+                        if last_client_note:
+                            if abs(time1 - last_client_note['date']) >= 86400:
+                                db.create_event(client_id, 1, time1, pat[0], pat[1])
                         else:
-                            events[client_id] = [{'time':time1,'id_station':1}]
+                            db.create_event(client_id, 1, time1, pat[0], pat[1])
                     print(f'Расстояние до колонки {i} - {dist} метров')
                     i += 1
                 print()
@@ -94,15 +95,13 @@ for val in consumer:
                     dist = geodesic((lat2, lon2), (pat)).meters
                     if dist <= needed_dist:
                         print(f'Отработало событие! {val}, координаты офиса: {pat}, расстрояние: {dist}')
-                        if client_id in events:
-                            for client in events:
-                                for event in events[client]:
-                                    if 2 == event['id_station'] and time1 - event['time'] >= 86400:
-                                        events[client_id].append({'time': time1, 'id_station': 2})
-                                    elif 2 != event['id_station']:
-                                        events[client_id].append({'time': time1, 'id_station': 2})
+                        last_client_note = db.get_last_event_by_client(client_id, 2)
+                        print(last_client_note)
+                        if last_client_note:
+                            if abs(time1 - last_client_note['date']) >= 86400:
+                                db.create_event(client_id, 2, time1, pat[0], pat[1])
                         else:
-                            events[client_id] = [{'time': time1, 'id_station': 2}]
+                            db.create_event(client_id, 2, time1, pat[0], pat[1])
                     print(f'Расстояние до офиса {i} - {dist} метров')
                     i += 1
                 print()
@@ -110,15 +109,13 @@ for val in consumer:
                     dist = geodesic((lat2, lon2), (pat)).meters
                     if dist <= needed_dist:
                         print(f'Отработало событие! {val}, координаты банка: {pat}, расстрояние: {dist}')
-                        if client_id in events:
-                            for client in events:
-                                for event in events[client]:
-                                    if 3 == event['id_station'] and time1 - event['time'] >= 86400:
-                                        events[client_id].append({'time': time1, 'id_station': 3})
-                                    elif 3 != event['id_station']:
-                                        events[client_id].append({'time': time1, 'id_station': 3})
+                        last_client_note = db.get_last_event_by_client(client_id, 3)
+                        print(last_client_note)
+                        if last_client_note:
+                            if abs(time1 - last_client_note['date']) >= 86400:
+                                db.create_event(client_id, 3, time1, pat[0], pat[1])
                         else:
-                            events[client_id] = [{'time': time1, 'id_station': 3}]
+                            db.create_event(client_id, 3, time1, pat[0], pat[1])
                     print(f'Расстояние до банка {i} - {dist} метров')
                     i += 1
             print('---------------------------------///////////////////////---------------------------------')
