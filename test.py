@@ -73,9 +73,9 @@ for val in consumer:
             print(f'средняя скорость: {mean(clients[client_id])}')
             i = 1
             if speed >= 20 and speed <= 110:
-                needed_dist = 1500
+                needed_dist = 2500
             else:
-                needed_dist = 500
+                needed_dist = 1200
             for pat in patrols:
                 dist = geodesic((lat2, lon2), (pat)).meters
                 if dist <= needed_dist:
